@@ -2,6 +2,7 @@
 import pytest
 import logging
 import datetime
+import os
 from selenium import webdriver
 import allure
 from selenium.webdriver.chromium.options import ChromiumOptions
@@ -12,21 +13,61 @@ from selenium.webdriver.firefox.options import Options as FFOptions
 
 def pytest_addoption(parser):
     """Pytest hook для добавления кастомных параметров командной строки"""
-    parser.addoption("--api_key", action="store", help="api_key")
+    parser.addoption("--api_key", default="", action="store", help="api_key")
     parser.addoption('--browser', default="chrome", help="Which browser to open")
     parser.addoption("--app_url", default='10.0.2.15:8081', help='App base url')
     parser.addoption("--driver_storage", default='/Users/darinastarshinova/yandexdriver', help='Ya driver storage')
     parser.addoption("--headless", action='store_true', help='Headless mode')
-    # parser.addoption('--log_level', action='store', default='INFO')
+    parser.addoption('--log_level', action='store', default='INFO')
     parser.addoption('--remote_start', action='store_true', help='Remote start')
     parser.addoption('--browser_ver', help='Browser version')
     parser.addoption('--remote_url', default='http://127.0.0.1:8080/wd/hub', help='Remote selenoid server url')
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    if os.path.basename(item.fspath) == "test_presta_api.py":
+        return
+
+    driver = item.funcargs["browser"]
+
+    if rep.outcome != 'passed':
+        item.status = 'failed'
+    else:
+        item.status = 'passed'
+
+    if item.status == "failed":
+        allure.attach(
+            name="failure_screenshot",
+            body=driver.get_screenshot_as_png(),
+            attachment_type=allure.attachment_type.PNG
+        )
 
 
 @pytest.fixture
 def get_api_key(request):
     """Фикстура получения api_key из pytest_addoption"""
     return request.config.getoption('--api_key')
+
+
+@pytest.fixture
+def get_base_url(request):
+    """Фикстура получения адреса главной страницы"""
+    return f"http://{request.config.getoption('--app_url')}"
+
+
+@pytest.fixture
+def get_cart_url(request):
+    """Фикстура получения адреса корзины"""
+    return f"http://{request.config.getoption('--app_url')}/cart?action=show"
+
+
+@pytest.fixture
+def get_registr_url(request):
+    """Фикстура получения адреса страницы регистрации"""
+    return f"http://{request.config.getoption('--app_url')}/registration"
 
 
 @pytest.fixture(scope='session')
