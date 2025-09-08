@@ -71,7 +71,6 @@ pipeline {
                     sh 'docker compose -f ${COMPOSE_FILE} up -d'
 
 
-
                 }
             }
         }
@@ -105,50 +104,45 @@ pipeline {
                     ).trim()
 
                     if (!cookieKey) {
-                        error 'Не удалось получить _COOKIE_KEY_ из settings.inc.php'
+                        error '_COOKIE_KEY_ не найден'
                     }
 
                     // Генерируем API-ключ
                     def apiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim()
                     env.PS_API_KEY = apiKey
 
-                    // Получаем ID магазина
+                    // Получаем ID магазина (исправлено: без мусора в stderr)
                     def shopId = sqlQuery("SELECT id_shop FROM ps_shop WHERE active = 1 LIMIT 1;")
                     def shopGroupId = sqlQuery("SELECT id_shop_group FROM ps_shop WHERE id_shop = ${shopId};")
 
                     // Включаем Webservice
                     sqlExecute("UPDATE ps_configuration SET value = '1' WHERE name = 'PS_WEBSERVICE';")
 
-                    // Создаём аккаунт
+                    // Создаём учётную запись
                     sqlExecute("""
                         INSERT INTO ps_webservice_account (user, key_val, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
-                        VALUES ('jenkins-full', '', 'Full API access (CI)', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
+                        VALUES ('jenkins-api', '', 'Автоматически сгенерирован', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
                     """)
 
-                    // Получаем ID нового ключа
-                    def wsId = sqlQuery("SELECT id_webservice_account FROM ps_webservice_account WHERE user = 'jenkins-full';")
+                    def wsId = sqlQuery("SELECT id_webservice_account FROM ps_webservice_account WHERE user = 'jenkins-api';")
 
-                    // Хешируем: md5(apiKey + cookie_key)
+                    // Хешируем ключ
                     def hashedKey = sh(
                         script: "php -r \"echo md5('${apiKey}' . '${cookieKey}');\"",
                         returnStdout: true
                     ).trim()
 
-                    // Сохраняем хеш
                     sqlExecute("UPDATE ps_webservice_account SET key_val = '${hashedKey}' WHERE id_webservice_account = ${wsId};")
 
-                    // Получаем все ресурсы из ps_webservice_definition
+                    // Выдаём полные права
                     def resources = sqlQuery("SELECT name FROM ps_webservice_definition;").split('\n')
-                    def methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-
-                    // Даём полные права на все ресурсы
-                    resources.each { res ->
-                        res = res.trim()
-                        if (res) {
-                            methods.each { method ->
+                    ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].each { method ->
+                        resources.each { resource ->
+                            resource = resource.trim()
+                            if (resource) {
                                 sqlExecute("""
                                     INSERT IGNORE INTO ps_webservice_permission (resource, method, id_webservice_account)
-                                    VALUES ('${res}', '${method}', ${wsId});
+                                    VALUES ('${resource}', '${method}', ${wsId});
                                 """)
                             }
                         }
