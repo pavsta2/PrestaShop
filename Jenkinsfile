@@ -120,19 +120,13 @@ pipeline {
 
                     // Создаём учётную запись
                     sqlExecute("""
-                        INSERT INTO ps_webservice_account (user, key_val, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
-                        VALUES ('jenkins-api', '', 'Автоматически сгенерирован', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
+                        INSERT INTO ps_webservice_account (key, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
+                        VALUES ('${hashedKey}', 'API-ключ: Jenkins CI', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
                     """)
 
-                    def wsId = sqlQuery("SELECT id_webservice_account FROM ps_webservice_account WHERE user = 'jenkins-api';")
-
-                    // Хешируем ключ
-                    def hashedKey = sh(
-                        script: "php -r \"echo md5('${apiKey}' . '${cookieKey}');\"",
-                        returnStdout: true
-                    ).trim()
-
-                    sqlExecute("UPDATE ps_webservice_account SET key_val = '${hashedKey}' WHERE id_webservice_account = ${wsId};")
+                    if (!wsId) {
+                        error 'Не удалось получить id_webservice_account после вставки'
+                    }
 
                     // Выдаём полные права
                     def resources = sqlQuery("SELECT name FROM ps_webservice_definition;").split('\n')
@@ -149,6 +143,7 @@ pipeline {
                     }
 
                     echo "Webservice активирован. API-ключ с полным доступом создан."
+                    echo "Открытый ключ: ${apiKey}"
                 }
             }
         }

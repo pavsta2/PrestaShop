@@ -6,7 +6,7 @@ class ApiRequest(BaseHTTPMeth):
     """Класс, описывающий методы Presta Api"""
     @allure.step("Выполнение запроса получения товара по id")
     def get_product(self, api_key, prod_id):
-        url = f'http://localhost:8080/api/products/{prod_id}'
+        url = f'http://localhost:8082/api/products/{prod_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -18,7 +18,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса списка всех товаров")
     def get_products(self, api_key):
-        url = f'http://localhost:8080/api/products'
+        url = f'http://localhost:8082/api/products'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -29,7 +29,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Получение максимального id товара")
     def get_product_max_id(self, api_key):
-        url = f'http://localhost:8080/api/products'
+        url = f'http://localhost:8082/api/products'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -40,7 +40,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса создания производителя")
     def create_manufacture(self, api_key, manufacture_name):
-        url = "http://localhost:8080/api/manufacturers"
+        url = "http://localhost:8082/api/manufacturers"
 
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
@@ -61,7 +61,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса получения производителя по id")
     def get_manufacture_by_id(self, api_key, manuf_id):
-        url = f'http://localhost:8080/api/manufacturers/{manuf_id}'
+        url = f'http://localhost:8082/api/manufacturers/{manuf_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}'
@@ -72,7 +72,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса создания поставщика")
     def create_supplier(self, api_key, supplier_name):
-        url = "http://localhost:8080/api/suppliers"
+        url = "http://localhost:8082/api/suppliers"
 
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
@@ -92,7 +92,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса получения поставщика по id")
     def get_supplier_by_id(self, api_key, suppl_id):
-        url = f'http://localhost:8080/api/suppliers/{suppl_id}'
+        url = f'http://localhost:8082/api/suppliers/{suppl_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}'
@@ -103,7 +103,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса создания категории")
     def create_category(self, api_key, category_name):
-        url = "http://localhost:8080/api/categories"
+        url = "http://localhost:8082/api/categories"
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
                    "<category>\n"
@@ -132,7 +132,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса получения категории по id")
     def get_category_by_id(self, api_key, cat_id):
-        url = f'http://localhost:8080/api/suppliers/{cat_id}'
+        url = f'http://localhost:8082/api/suppliers/{cat_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}'
@@ -172,7 +172,7 @@ class ApiRequest(BaseHTTPMeth):
             description='some description'
             ):
 
-        url = "http://localhost:8080/api/products"
+        url = "http://localhost:8082/api/products"
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
                    "<product>\n\t"
@@ -234,7 +234,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса получения товарного запаса")
     def get_prod_stock(self, api_key, prod_id):
-        url = f"http://localhost:8080/api/stock_availables?filter[id_product]={prod_id}&display=full&output_format=JSON"
+        url = f"http://localhost:8082/api/stock_availables?filter[id_product]={prod_id}&display=full&output_format=JSON"
 
         headers = {
             'Output-Format': 'JSON',
