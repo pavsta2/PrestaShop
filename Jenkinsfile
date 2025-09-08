@@ -207,14 +207,14 @@ pipeline {
 // === SQL-вспомогательные функции ===
 def sqlExecute(query) {
     sh """
-        docker exec -t some-mysql mysql -u${DB_USER} -p${DB_PASS} -D${DB_NAME} -e "${query.replace('\n', ' ')}"
+        docker exec -t some-mysql mysql -u ${DB_USER} -p ${DB_PASS} -D ${DB_NAME} -e "${query.replace('\n', ' ')}"
     """
 }
 
 def sqlQuery(query) {
     return sh(
         script: """
-            docker exec -t some-mysql mysql -u${DB_USER} -p${DB_PASS} -D${DB_NAME} \
+            docker exec -t some-mysql mysql -u ${DB_USER} -p ${DB_PASS} -D ${DB_NAME} \
                 -s -N -e "${query}" 2>/dev/null
         """,
         returnStdout: true
