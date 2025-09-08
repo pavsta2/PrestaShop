@@ -74,7 +74,7 @@ pipeline {
                         script {
                             try {
                                 def code = sh(
-                                    script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8080 || echo '000'",
+                                    script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:80 || echo '000'",
                                     returnStdout: true
                                 ).trim()
                                 return code == '200'
