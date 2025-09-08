@@ -38,7 +38,7 @@ services:
       DB_USER: root
       DB_PASSWD: admin
       PS_INSTALL_AUTO: 1
-      PS_DOMAIN: localhost:8082
+      PS_DOMAIN: prestashop
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://prestashop:80" ]
