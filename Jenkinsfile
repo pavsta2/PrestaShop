@@ -213,7 +213,10 @@ def sqlExecute(query) {
 
 def sqlQuery(query) {
     return sh(
-        script: "docker exec -t some-mysql mysql -u${DB_USER} -p${DB_PASS} -D${DB_NAME} -s -N -e \"${query}\"",
+        script: """
+            docker exec -t some-mysql mysql -u${DB_USER} -p${DB_PASS} -D${DB_NAME} \
+                -s -N -e "${query}" 2>/dev/null
+        """,
         returnStdout: true
     ).trim()
 }
