@@ -45,6 +45,7 @@ pipeline {
         TEST_IMAGE = 'presta_tests:latest'         // замените на имя вашего образа
         ALLURE_RESULTS = 'allure-results'
         ALLURE_REPORT = 'allure-report'
+        COMPOSE_FILE = 'docker-compose.yml'
     }
 
     stages {
@@ -67,7 +68,7 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск docker-compose...'
-                    sh 'docker compose -f up -d'
+                    sh 'docker compose -f ${COMPOSE_FILE} up -d'
 
                     // Ждём, пока PrestaShop станет доступен
                     waitUntil {
