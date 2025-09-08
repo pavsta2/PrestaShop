@@ -41,7 +41,7 @@ services:
       PS_DOMAIN: localhost:8080
 
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://prestashop:8080" ]
+      test: [ "CMD", "curl", "-f", "http://prestashop:80" ]
       interval: 10s
       timeout: 5s
       retries: 3
