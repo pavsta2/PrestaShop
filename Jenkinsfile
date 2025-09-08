@@ -87,7 +87,32 @@ pipeline {
                             docker exec -t prestashop mv /var/www/html/admin /var/www/html/${PS_ADMIN_DIR_FIXED}
                         fi
                     """
-                    echo "Админка доступна по: http://localhost:8080/${PS_ADMIN_DIR_FIXED}"
+                    echo "Админка доступна по: http://localhost:8082/${PS_ADMIN_DIR_FIXED}"
+                }
+            }
+        }
+
+        stage('Ожидание завершения установки PrestaShop') {
+            steps {
+                script {
+                    echo 'Ожидание появления /var/www/html/config/settings.inc.php...'
+                    def configExists = false
+                    for (int i = 0; i < 60; i++) {
+                        def result = sh(
+                            script: "docker exec -t prestashop [ -f /var/www/html/config/settings.inc.php ] && echo 'yes' || echo 'no'",
+                            returnStdout: true
+                        ).trim()
+                        if (result == 'yes') {
+                            configExists = true
+                            break
+                        }
+                        echo "Файл ещё не создан... ждём (попытка ${i + 1})"
+                        sleep(5)
+                    }
+                    if (!configExists) {
+                        error 'Файл settings.inc.php не появился за 5 минут.'
+                    }
+                    echo 'Установка завершена, файл найден.'
                 }
             }
         }
