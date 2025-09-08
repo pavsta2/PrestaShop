@@ -92,6 +92,46 @@ pipeline {
             }
         }
 
+        stage('Запуск и ожидание установки PrestaShop') {
+            steps {
+                script {
+                    echo 'Делаем запрос к PrestaShop для запуска установки...'
+
+                    // Ждём доступности
+                    waitUntil {
+                        try {
+                            def code = sh(
+                                script: "curl -s -o /dev/null -w '%{http_code}' http://prestashop:80 || echo '000'",
+                                returnStdout: true
+                            ).trim()
+                            return ['200', '301', '302'].contains(code)
+                        } catch (e) {
+                            return false
+                        }
+                    }
+
+                    echo 'PrestaShop доступен. Установка начата...'
+
+                    // Ждём файла
+                    timeout(time: 10, unit: 'MINUTES') {
+                        waitUntil {
+                            try {
+                                def exists = sh(
+                                    script: "docker exec -t prestashop [ -f /var/www/html/config/settings.inc.php ] && echo 'yes' || echo 'no'",
+                                    returnStdout: true
+                                ).trim()
+                                return exists == 'yes'
+                            } catch (e) {
+                                return false
+                            }
+                        }
+                    }
+
+                    echo 'Установка завершена, settings.inc.php создан.'
+                }
+            }
+        }
+
         stage('Активация Webservice и создание API-ключа (полный доступ)') {
             steps {
                 script {
@@ -133,7 +173,7 @@ pipeline {
 
                     // Создаём учётную запись
                     sqlExecute("""
-                        INSERT INTO ps_webservice_account (`key`, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
+                        INSERT INTO ps_webservice_account (\`key\`, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
                         VALUES ('${hashedKey}', 'API-ключ: Jenkins CI', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
                     """)
 
