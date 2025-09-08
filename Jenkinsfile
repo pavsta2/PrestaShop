@@ -42,7 +42,7 @@ pipeline {
         PS_API_KEY = ''
 
         // --- Тесты и Allure ---
-        TEST_IMAGE = 'PrestaTests:latest'         // замените на имя вашего образа
+        TEST_IMAGE = 'presta_tests:latest'         // замените на имя вашего образа
         ALLURE_RESULTS = 'allure-results'
         ALLURE_REPORT = 'allure-report'
     }
