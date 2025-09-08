@@ -91,17 +91,6 @@ pipeline {
                 }
             }
         }
-        stage('🔧 Тест подключения к MySQL') {
-            steps {
-                script {
-                    sh '''
-                        MYSQL_PWD='admin' docker exec -t some-mysql mysql -u root -e "SELECT VERSION();"
-                        MYSQL_PWD='admin' docker exec -t some-mysql mysql -u root -e "SHOW DATABASES;"
-                        MYSQL_PWD='admin' docker exec -t some-mysql mysql -u root -e "USE prestashop; SELECT id_shop, name FROM ps_shop;"
-                    '''
-                }
-            }
-        }
 
         stage('Активация Webservice и создание API-ключа (полный доступ)') {
             steps {
