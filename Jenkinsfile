@@ -91,6 +91,17 @@ pipeline {
                 }
             }
         }
+        stage('🔧 Тест подключения к MySQL') {
+            steps {
+                script {
+                    sh '''
+                        MYSQL_PWD='admin' docker exec -t some-mysql mysql -u root -e "SELECT VERSION();"
+                        MYSQL_PWD='admin' docker exec -t some-mysql mysql -u root -e "SHOW DATABASES;"
+                        MYSQL_PWD='admin' docker exec -t some-mysql mysql -u root -e "USE prestashop; SELECT id_shop, name FROM ps_shop;"
+                    '''
+                }
+            }
+        }
 
         stage('Активация Webservice и создание API-ключа (полный доступ)') {
             steps {
@@ -205,18 +216,21 @@ pipeline {
 }
 
 // === SQL-вспомогательные функции ===
-def sqlExecute(query) {
-    sh """
-        docker exec -t some-mysql mysql -u ${DB_USER} -p ${DB_PASS} -D ${DB_NAME} -e "${query.replace('\n', ' ')}"
-    """
-}
-
 def sqlQuery(query) {
     return sh(
         script: """
-            docker exec -t some-mysql mysql -u ${DB_USER} -p ${DB_PASS} -D ${DB_NAME} \
-                -s -N -e "${query}" 2>/dev/null
+            MYSQL_PWD='admin' \\
+            docker exec -t some-mysql \\
+            mysql -u root -D prestashop -s -N -e "${query}"
         """,
         returnStdout: true
     ).trim()
+}
+
+def sqlExecute(query) {
+    sh """
+        MYSQL_PWD='admin' \\
+        docker exec -t some-mysql \\
+        mysql -u root -D prestashop -e "${query}"
+    """
 }
