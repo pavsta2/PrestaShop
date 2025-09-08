@@ -67,14 +67,14 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск docker-compose...'
-                    sh 'docker compose -f up'
+                    sh 'docker compose up -f -d'
 
                     // Ждём, пока PrestaShop станет доступен
                     waitUntil {
                         script {
                             try {
                                 def code = sh(
-                                    script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:80 || echo '000'",
+                                    script: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8081 || echo '000'",
                                     returnStdout: true
                                 ).trim()
                                 return code == '200'

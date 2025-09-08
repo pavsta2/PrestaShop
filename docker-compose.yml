@@ -31,7 +31,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - 8080:80
+      - 8081:80
     environment:
       DB_SERVER: some-mysql
       DB_NAME: prestashop
