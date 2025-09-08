@@ -70,19 +70,6 @@ pipeline {
                     echo 'Запуск docker-compose...'
                     sh 'docker compose -f ${COMPOSE_FILE} up -d'
 
-                    // Ждём, пока PrestaShop станет доступен
-                    waitUntil {
-                        script {
-                            try {
-                                def code = sh(
-                                    script: "curl -s -o /dev/null -w '%{http_code}' http://prestashop:80 || echo '000'",
-                                    returnStdout: true
-                                ).trim()
-                                return code == '200'
-                            } catch (e) { return false }
-                        }
-                    }
-                    echo 'PrestaShop доступен.'
 
                     // Ждём, пока установка завершится (файл settings.inc.php появится)
                     echo 'Ожидание завершения установки PrestaShop...'
