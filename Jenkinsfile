@@ -67,7 +67,7 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск docker-compose...'
-                    sh 'docker-compose -f up -d'
+                    sh 'docker compose -f up -d'
 
                     // Ждём, пока PrestaShop станет доступен
                     waitUntil {
