@@ -128,6 +128,14 @@ pipeline {
                         error 'Не удалось получить id_webservice_account после вставки'
                     }
 
+                    // Хешируем ключ
+                    def hashedKey = sh(
+                        script: "php -r \"echo md5('${apiKey}' . '${cookieKey}');\"",
+                        returnStdout: true
+                    ).trim()
+
+                    sqlExecute("UPDATE ps_webservice_account SET key_val = '${hashedKey}' WHERE id_webservice_account = ${wsId};")
+
                     // Выдаём полные права
                     def resources = sqlQuery("SELECT name FROM ps_webservice_definition;").split('\n')
                     ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].each { method ->
