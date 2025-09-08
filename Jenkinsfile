@@ -112,22 +112,7 @@ pipeline {
 
                     echo 'PrestaShop доступен. Установка начата...'
 
-                    // Ждём файла
-                    timeout(time: 10, unit: 'MINUTES') {
-                        waitUntil {
-                            try {
-                                def exists = sh(
-                                    script: "docker exec -t prestashop [ -f /var/www/html/config/settings.inc.php ] && echo 'yes' || echo 'no'",
-                                    returnStdout: true
-                                ).trim()
-                                return exists == 'yes'
-                            } catch (e) {
-                                return false
-                            }
-                        }
-                    }
 
-                    echo 'Установка завершена, settings.inc.php создан.'
                 }
             }
         }
