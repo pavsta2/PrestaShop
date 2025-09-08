@@ -208,8 +208,7 @@ pipeline {
 def sqlQuery(query) {
     return sh(
         script: """
-            MYSQL_PWD='admin' \\
-            docker exec -t some-mysql \\
+            docker exec -t -e MYSQL_PWD='admin' some-mysql \\
             mysql -u root -D prestashop -s -N -e "${query}"
         """,
         returnStdout: true
@@ -218,8 +217,7 @@ def sqlQuery(query) {
 
 def sqlExecute(query) {
     sh """
-        MYSQL_PWD='admin' \\
-        docker exec -t some-mysql \\
+        docker exec -t -e MYSQL_PWD='admin' some-mysql \\
         mysql -u root -D prestashop -e "${query}"
     """
 }
