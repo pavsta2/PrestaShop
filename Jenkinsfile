@@ -42,7 +42,7 @@ pipeline {
         PS_API_KEY = ''
 
         // --- Тесты и Allure ---
-        TEST_IMAGE = 'your-test-project:latest'         // замените на имя вашего образа
+        TEST_IMAGE = 'PrestaTests:latest'         // замените на имя вашего образа
         ALLURE_RESULTS = 'allure-results'
         ALLURE_REPORT = 'allure-report'
     }
@@ -50,8 +50,8 @@ pipeline {
     stages {
         stage('Checkout from GitHub') {
             steps {
-                git branch: 'homework_jenkins',
-                    url: 'https://github.com/pavsta2/WebAuto_Otus.git'
+                git branch: 'remote_start',
+                    url: 'https://github.com/pavsta2/PrestaShop.git'
             }
         }
         stage('Build Test Image with Fresh Code') {
