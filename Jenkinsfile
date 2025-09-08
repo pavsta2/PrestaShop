@@ -111,6 +111,19 @@ pipeline {
                     def apiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim()
                     env.PS_API_KEY = apiKey
 
+                    // Хешируем ключ
+                    def hashedKey = sh(
+                        script: "php -r \"echo md5('${apiKey}' . '${cookieKey}');\"",
+                        returnStdout: true
+                    ).trim()
+
+                    if (!hashedKey) {
+                        error 'Не удалось сгенерировать хеш API-ключа'
+                    }
+
+                    echo "Открытый ключ: ${apiKey}"
+                    echo "Хешированный ключ: ${hashedKey}"
+
                     // Получаем ID магазина (исправлено: без мусора в stderr)
                     def shopId = sqlQuery("SELECT id_shop FROM ps_shop WHERE active = 1 LIMIT 1;")
                     def shopGroupId = sqlQuery("SELECT id_shop_group FROM ps_shop WHERE id_shop = ${shopId};")
@@ -124,17 +137,12 @@ pipeline {
                         VALUES ('${hashedKey}', 'API-ключ: Jenkins CI', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
                     """)
 
+                    // Получаем ID нового ключа
+                    def wsId = sqlQuery("SELECT id_webservice_account FROM ps_webservice_account WHERE description = 'API-ключ: Jenkins CI';")
+
                     if (!wsId) {
                         error 'Не удалось получить id_webservice_account после вставки'
                     }
-
-                    // Хешируем ключ
-                    def hashedKey = sh(
-                        script: "php -r \"echo md5('${apiKey}' . '${cookieKey}');\"",
-                        returnStdout: true
-                    ).trim()
-
-                    sqlExecute("UPDATE ps_webservice_account SET key_val = '${hashedKey}' WHERE id_webservice_account = ${wsId};")
 
                     // Выдаём полные права
                     def resources = sqlQuery("SELECT name FROM ps_webservice_definition;").split('\n')
@@ -151,7 +159,6 @@ pipeline {
                     }
 
                     echo "Webservice активирован. API-ключ с полным доступом создан."
-                    echo "Открытый ключ: ${apiKey}"
                 }
             }
         }
