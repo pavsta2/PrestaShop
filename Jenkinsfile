@@ -133,7 +133,7 @@ pipeline {
 
                     // Создаём учётную запись
                     sqlExecute("""
-                        INSERT INTO ps_webservice_account (key, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
+                        INSERT INTO ps_webservice_account (`key`, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
                         VALUES ('${hashedKey}', 'API-ключ: Jenkins CI', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
                     """)
 
