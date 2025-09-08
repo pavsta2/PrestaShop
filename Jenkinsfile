@@ -71,24 +71,7 @@ pipeline {
                     sh 'docker compose -f ${COMPOSE_FILE} up -d'
 
 
-                    // Ждём, пока установка завершится (файл settings.inc.php появится)
-                    echo 'Ожидание завершения установки PrestaShop...'
-                    def installed = false
-                    for (int i = 0; i < 30; i++) {
-                        def exists = sh(
-                            script: "docker exec -t prestashop [ -f /var/www/html/config/settings.inc.php ] && echo 'yes' || echo 'no'",
-                            returnStdout: true
-                        ).trim()
-                        if (exists == 'yes') {
-                            installed = true
-                            break
-                        }
-                        sleep(5)
-                    }
-                    if (!installed) {
-                        error 'Установка PrestaShop не завершилась за 150 секунд.'
-                    }
-                    echo 'Установка завершена.'
+
                 }
             }
         }
