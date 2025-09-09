@@ -24,26 +24,26 @@ def pytest_addoption(parser):
     parser.addoption('--remote_url', default='http://127.0.0.1:8080/wd/hub', help='Remote selenoid server url')
 
 
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    outcome = yield
-    rep = outcome.get_result()
-    if os.path.basename(item.fspath) == "test_presta_api.py":
-        return
-
-    driver = item.funcargs["browser"]
-
-    if rep.outcome != 'passed':
-        item.status = 'failed'
-    else:
-        item.status = 'passed'
-
-    if item.status == "failed":
-        allure.attach(
-            name="failure_screenshot",
-            body=driver.get_screenshot_as_png(),
-            attachment_type=allure.attachment_type.PNG
-        )
+# @pytest.hookimpl(tryfirst=True, hookwrapper=True)
+# def pytest_runtest_makereport(item, call):
+#     outcome = yield
+#     rep = outcome.get_result()
+#     if os.path.basename(item.fspath) == "test_presta_api.py":
+#         return
+#
+#     driver = item.funcargs["browser"]
+#
+#     if rep.outcome != 'passed':
+#         item.status = 'failed'
+#     else:
+#         item.status = 'passed'
+#
+#     if item.status == "failed":
+#         allure.attach(
+#             name="failure_screenshot",
+#             body=driver.get_screenshot_as_png(),
+#             attachment_type=allure.attachment_type.PNG
+#         )
 
 
 @pytest.fixture

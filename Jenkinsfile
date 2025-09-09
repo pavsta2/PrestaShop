@@ -123,7 +123,8 @@ pipeline {
 
                     // Генерируем ключ (32 символа)
                     def apiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim() // 32 hex = 16 байт
-                    env.PS_API_KEY = apiKey
+                    // Сохраняем в переменную окружения для других этапов
+                    currentBuild.buildVariables.PS_API_KEY = psApiKey
 
                     // PHP-скрипт для выполнения в контейнере PrestaShop
                     def phpScript = """
@@ -136,12 +137,12 @@ pipeline {
 
                     // 2. Создаём новый ключ
                     \$apiAccess = new WebserviceKey();
-                    \$apiAccess->key = '${apiKey}';
+                    \$apiAccess->key = '${psApiKey}';
                     if (!\$apiAccess->save()) {
                         echo "Ошибка при сохранении API-ключа\\n";
                         exit(1);
                     }
-                    echo "API-ключ создан: ${apiKey}\\n";
+                    echo "API-ключ создан: ${psApiKey}\\n";
 
                     // 3. Назначаем полные права на все ресурсы
                     \$resources = WebserviceRequest::getResources();
@@ -179,7 +180,7 @@ pipeline {
                     '''
 
                     echo "Webservice активирован, API-ключ с полными правами создан."
-                    echo "Открытый ключ: ${apiKey}"
+                    echo "Открытый ключ: ${psApiKey}"
                 }
             }
         }
@@ -188,7 +189,7 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск тестового контейнера...'
-                    echo "PS_API_KEY = ${env.PS_API_KEY}"
+                    echo "PS_API_KEY = ${psApiKey}"
                     echo "BROWSER = ${params.BROWSER}, BROWSER_VER = ${params.BROWSER_VER}, XDIST = ${params.XDIST}"
                     sh """
                         docker run --rm \\
@@ -198,7 +199,7 @@ pipeline {
                           -e XDIST='${params.XDIST}' \\
                           -e LOG_LEVEL='${params.LOG_LEVEL}' \\
                           -e PS_API_URL=http://prestashop:80/api \\
-                          -e PS_API_KEY=${env.PS_API_KEY} \\
+                          -e PS_API_KEY=${psApiKey} \\
                           -e REMOTE_URL='${params.REMOTE_URL}' \\
                           -v "jenkins_results:/root/Presta/${ALLURE_RESULTS}" \\
                           -v ${WORKSPACE}/${ALLURE_RESULTS}:/app/${ALLURE_RESULTS} \\
