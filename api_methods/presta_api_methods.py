@@ -6,7 +6,7 @@ class ApiRequest(BaseHTTPMeth):
     """Класс, описывающий методы Presta Api"""
     @allure.step("Выполнение запроса получения товара по id")
     def get_product(self, api_key, prod_id):
-        url = f'http://localhost:8082/api/products/{prod_id}'
+        url = f'http://prestashop:80/api/products/{prod_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -18,7 +18,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Выполнение запроса списка всех товаров")
     def get_products(self, api_key):
-        url = f'http://localhost:8082/api/products'
+        url = f'http://prestashop:80/api/products'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -29,7 +29,7 @@ class ApiRequest(BaseHTTPMeth):
 
     @allure.step("Получение максимального id товара")
     def get_product_max_id(self, api_key):
-        url = f'http://localhost:8082/api/products'
+        url = f'http://prestashop:80/api/products'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',

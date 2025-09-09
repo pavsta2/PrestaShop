@@ -15,13 +15,13 @@ def pytest_addoption(parser):
     """Pytest hook для добавления кастомных параметров командной строки"""
     parser.addoption("--api_key", default="", action="store", help="api_key")
     parser.addoption('--browser', default="chrome", help="Which browser to open")
-    parser.addoption("--app_url", default='10.0.2.15:8081', help='App base url')
+    parser.addoption("--app_url", default='10.0.2.15:8082', help='App base url')
     parser.addoption("--driver_storage", default='/Users/darinastarshinova/yandexdriver', help='Ya driver storage')
     parser.addoption("--headless", action='store_true', help='Headless mode')
     parser.addoption('--log_level', action='store', default='INFO')
     parser.addoption('--remote_start', action='store_true', help='Remote start')
     parser.addoption('--browser_ver', help='Browser version')
-    parser.addoption('--remote_url', default='http://127.0.0.1:8080/wd/hub', help='Remote selenoid server url')
+    parser.addoption('--remote_url', default='http://selenoid4:4444/wd/hub', help='Remote selenoid server url')
 
 
 # @pytest.hookimpl(tryfirst=True, hookwrapper=True)
