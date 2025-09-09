@@ -15,7 +15,7 @@ def pytest_addoption(parser):
     """Pytest hook для добавления кастомных параметров командной строки"""
     parser.addoption("--api_key", default="", action="store", help="api_key")
     parser.addoption('--browser', default="chrome", help="Which browser to open")
-    parser.addoption("--app_url", default='10.0.2.15:8082', help='App base url')
+    parser.addoption("--app_url", default='localhost:8082', help='App base url')
     parser.addoption("--driver_storage", default='/Users/darinastarshinova/yandexdriver', help='Ya driver storage')
     parser.addoption("--headless", action='store_true', help='Headless mode')
     parser.addoption('--log_level', action='store', default='INFO')

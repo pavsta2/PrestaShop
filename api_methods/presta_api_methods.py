@@ -35,7 +35,7 @@ class ApiRequest(BaseHTTPMeth):
             'Authorization': f'{api_key}',
         }
         self.logger.info(
-            '%s: Making GET request for list of all products and getting last(max) id' % self.class_name)
+            '%s: Making GET request with api key: %s for list of all products and getting last(max) id' %(self.class_name, api_key))
         return self.get_meth(url, headers).json()['products'][-1]['id']
 
     @allure.step("Выполнение запроса создания производителя")
