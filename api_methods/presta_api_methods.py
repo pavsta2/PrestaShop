@@ -13,7 +13,7 @@ class ApiRequest(BaseHTTPMeth):
             'Content-Type': 'text/plain'
         }
         self.logger.info(
-            '%s: Making GET request for product with id: %s' % (self.class_name, prod_id))
+            '%s: Making GET request with Api key: %s for product with id: %s' % (self.class_name, api_key, prod_id))
         return self.get_meth(url, headers)
 
     @allure.step("Выполнение запроса списка всех товаров")
