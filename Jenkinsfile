@@ -233,5 +233,19 @@ pipeline {
                 }
             }
         }
+        stage('Очистка') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Очистка Docker ==="
+                        docker system prune -f
+                        docker volume prune -f
+
+                        echo "=== Очистка workspace ==="
+                        rm -rf ${WORKSPACE}/*
+                    '''
+                }
+            }
+        }
     }
 }

@@ -49,7 +49,8 @@ def pytest_addoption(parser):
 @pytest.fixture
 def get_api_key(request):
     """Фикстура получения api_key из pytest_addoption"""
-    return request.config.getoption('--api_key')
+    api_key = f'Basic {request.config.getoption("--api_key")}'
+    return api_key
 
 
 @pytest.fixture
