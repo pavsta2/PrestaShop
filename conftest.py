@@ -4,7 +4,6 @@ import logging
 import datetime
 import os
 from selenium import webdriver
-import allure
 from selenium.webdriver.chromium.options import ChromiumOptions
 from selenium.webdriver.chromium.service import ChromiumService
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -49,7 +48,7 @@ def pytest_addoption(parser):
 @pytest.fixture
 def get_api_key(request):
     """Фикстура получения api_key из pytest_addoption"""
-    api_key = f'Basic {request.config.getoption("--api_key")}'
+    api_key = f'Bearer {request.config.getoption("--api_key")}'
     return api_key
 
 
