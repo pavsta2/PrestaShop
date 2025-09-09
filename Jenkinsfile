@@ -166,7 +166,6 @@ pipeline {
         DB_PASS = 'admin'
 
         // --- PrestaShop ---
-        PS_ADMIN_DIR = 'admin_$(openssl rand -hex 6)'  // будет заменён на конкретное имя
         PS_ADMIN_DIR_FIXED = 'admin_8k3j29smxqkl'      // фиксированное имя для стабильности
 
         // --- API ---
