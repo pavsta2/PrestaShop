@@ -122,7 +122,7 @@ pipeline {
                     echo 'Активация Webservice и создание API-ключа через PHP...'
 
                     // Генерируем ключ (32 символа)
-                    def apiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim() // 32 hex = 16 байт
+                    def psApiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim() // 32 hex = 16 байт
                     // Сохраняем в переменную окружения для других этапов
                     currentBuild.buildVariables.PS_API_KEY = psApiKey
 
