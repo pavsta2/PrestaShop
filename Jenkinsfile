@@ -179,13 +179,6 @@ pipeline {
 
                     echo "Webservice активирован, API-ключ с полными правами создан."
                     echo "Открытый ключ: ${psApiKey}"
-
-                    currentBuild.rawBuild.addAction(
-                        new hudson.model.ParametersAction([
-                            new hudson.model.StringParameterValue('PS_API_KEY_RUNTIME', psApiKey)
-                        ])
-                    )
-                    env.PS_API_KEY_RUNTIME = psApiKey
                 }
             }
         }
@@ -194,7 +187,7 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск тестового контейнера...'
-                    echo "PS_API_KEY = ${env.PS_API_KEY_RUNTIME}"
+                    echo "PS_API_KEY = ${env.PS_API_KEY}"
                     echo "BROWSER = ${params.BROWSER}, BROWSER_VER = ${params.BROWSER_VER}, XDIST = ${params.XDIST}"
                     sh """
                         docker run --rm \\
@@ -204,7 +197,7 @@ pipeline {
                           -e XDIST='${params.XDIST}' \\
                           -e LOG_LEVEL='${params.LOG_LEVEL}' \\
                           -e PS_API_URL=http://prestashop:80/api \\
-                          -e PS_API_KEY=${env.PS_API_KEY_RUNTIME} \\
+                          -e PS_API_KEY=${env.PS_API_KEY} \\
                           -e REMOTE_URL='${params.REMOTE_URL}' \\
                           -v "jenkins_results:/root/Presta/${ALLURE_RESULTS}" \\
                           -v ${WORKSPACE}/${ALLURE_RESULTS}:/app/${ALLURE_RESULTS} \\
