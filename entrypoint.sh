@@ -14,7 +14,7 @@ pytest --browser="$BROWSER" \
       --numprocesses="$XDIST" \
       --remote_start \
       --remote_url="$REMOTE_URL" \
-      --alluredir=$ALLURE_RESULTS \
-      --api_key=$PS_API_KEY
+      --alluredir="$ALLURE_RESULTS" \
+      --api_key="$PS_API_KEY"
 
 chmod -R 777 $ALLURE_RESULTS
