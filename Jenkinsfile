@@ -188,7 +188,9 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск тестового контейнера...'
-                    sh '''
+                    echo "PS_API_KEY = ${env.PS_API_KEY}"
+                    echo "BROWSER = ${params.BROWSER}, BROWSER_VER = ${params.BROWSER_VER}, XDIST = ${params.XDIST}"
+                    sh """
                         docker run --rm \\
                           --network selenoid4 \\
                           -e BROWSER='${params.BROWSER}' \\
@@ -196,12 +198,12 @@ pipeline {
                           -e XDIST='${params.XDIST}' \\
                           -e LOG_LEVEL='${params.LOG_LEVEL}' \\
                           -e PS_API_URL=http://prestashop:80/api \\
-                          -e PS_API_KEY=${PS_API_KEY} \\
+                          -e PS_API_KEY=${env.PS_API_KEY} \\
                           -e REMOTE_URL='${params.REMOTE_URL}' \\
                           -v "jenkins_results:/root/Presta/${ALLURE_RESULTS}" \\
                           -v ${WORKSPACE}/${ALLURE_RESULTS}:/app/${ALLURE_RESULTS} \\
                           ${TEST_IMAGE}
-                    '''
+                    """
                 }
             }
         }
