@@ -120,70 +120,67 @@ pipeline {
         stage('Активация Webservice и создание API-ключа (полный доступ)') {
             steps {
                 script {
-                    echo 'Генерация API-ключа с полными правами...'
+                    echo 'Активация Webservice и создание API-ключа через PHP...'
 
-                    // Получаем _COOKIE_KEY_
-                    def cookieKey = sh(
-                        script: "docker exec -t prestashop grep _COOKIE_KEY_ /var/www/html/config/settings.inc.php | cut -d '\"' -f 2",
-                        returnStdout: true
-                    ).trim()
-
-                    if (!cookieKey) {
-                        error '_COOKIE_KEY_ не найден'
-                    }
-
-                    // Генерируем API-ключ
-                    def apiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim()
+                    // Генерируем ключ (32 символа)
+                    def apiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim() // 32 hex = 16 байт
                     env.PS_API_KEY = apiKey
 
-                    // Хешируем ключ
-                    def hashedKey = sh(
-                        script: "php -r \"echo md5('${apiKey}' . '${cookieKey}');\"",
-                        returnStdout: true
-                    ).trim()
+                    // PHP-скрипт для выполнения в контейнере PrestaShop
+                    def phpScript = """
+                    <?php
+                    require_once '/var/www/html/config/config.inc.php';
 
-                    if (!hashedKey) {
-                        error 'Не удалось сгенерировать хеш API-ключа'
+                    // 1. Включаем Webservice
+                    Configuration::updateValue('PS_WEBSERVICE', 1);
+                    echo "Webservice включён\\n";
+
+                    // 2. Создаём новый ключ
+                    \$apiAccess = new WebserviceKey();
+                    \$apiAccess->key = '${apiKey}';
+                    if (!\$apiAccess->save()) {
+                        echo "Ошибка при сохранении API-ключа\\n";
+                        exit(1);
+                    }
+                    echo "API-ключ создан: \${apiKey}\\n";
+
+                    // 3. Назначаем полные права на все ресурсы
+                    \$resources = WebserviceRequest::getResources();
+                    \$permissions = [];
+                    foreach (\$resources as \$resourceName => \$resource) {
+                        \$permissions[\$resourceName] = [
+                            'GET' => 1,
+                            'POST' => 1,
+                            'PUT' => 1,
+                            'PATCH' => 1,
+                            'DELETE' => 1,
+                            'HEAD' => 1
+                        ];
                     }
 
+                    WebserviceKey::setPermissionForAccount(\$apiAccess->id, \$permissions);
+                    echo "Полные права выданы для ключа ID: \${apiAccess->id}\\n";
+
+                    echo "SUCCESS";
+                    """
+
+                    // Сохраняем скрипт во временный файл и выполняем
+                    writeFile file: 'enable_webservice.php', text: phpScript
+
+                    // Копируем в контейнер и выполняем
+                    sh '''
+                        docker cp enable_webservice.php prestashop:/tmp/enable_webservice.php
+                        docker exec -t prestashop php /tmp/enable_webservice.php
+                        RESULT=\$(docker exec -t prestashop grep "SUCCESS" /tmp/enable_webservice.php.log 2>/dev/null || echo "")
+                        docker exec -t prestashop rm -f /tmp/enable_webservice.php
+                        if [ -z "\$RESULT" ]; then
+                            echo "Выполнение PHP-скрипта не завершилось успешно"
+                            exit 1
+                        fi
+                    '''
+
+                    echo "Webservice активирован, API-ключ с полными правами создан."
                     echo "Открытый ключ: ${apiKey}"
-                    echo "Хешированный ключ: ${hashedKey}"
-
-                    // Получаем ID магазина (исправлено: без мусора в stderr)
-                    def shopId = sqlQuery("SELECT id_shop FROM ps_shop WHERE active = 1 LIMIT 1;")
-                    def shopGroupId = sqlQuery("SELECT id_shop_group FROM ps_shop WHERE id_shop = ${shopId};")
-
-                    // Включаем Webservice
-                    sqlExecute("UPDATE ps_configuration SET value = '1' WHERE name = 'PS_WEBSERVICE';")
-
-                    // Создаём учётную запись
-                    sqlExecute("""
-                        INSERT INTO ps_webservice_account (`key`, description, active, date_add, date_upd, id_employee, id_shop_group, id_shop)
-                        VALUES ('${hashedKey}', 'API-ключ: Jenkins CI', 1, NOW(), NOW(), 1, ${shopGroupId}, ${shopId});
-                    """)
-
-                    // Получаем ID нового ключа
-                    def wsId = sqlQuery("SELECT id_webservice_account FROM ps_webservice_account WHERE description = 'API-ключ: Jenkins CI';")
-
-                    if (!wsId) {
-                        error 'Не удалось получить id_webservice_account после вставки'
-                    }
-
-                    // Выдаём полные права
-                    def resources = sqlQuery("SELECT name FROM ps_webservice_definition;").split('\n')
-                    ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].each { method ->
-                        resources.each { resource ->
-                            resource = resource.trim()
-                            if (resource) {
-                                sqlExecute("""
-                                    INSERT IGNORE INTO ps_webservice_permission (resource, method, id_webservice_account)
-                                    VALUES ('${resource}', '${method}', ${wsId});
-                                """)
-                            }
-                        }
-                    }
-
-                    echo "Webservice активирован. API-ключ с полным доступом создан."
                 }
             }
         }
@@ -237,22 +234,4 @@ pipeline {
             }
         }
     }
-}
-
-// === SQL-вспомогательные функции ===
-def sqlQuery(query) {
-    return sh(
-        script: """
-            docker exec -t -e MYSQL_PWD='admin' some-mysql \\
-            mysql -u root -D prestashop -s -N -e "${query}"
-        """,
-        returnStdout: true
-    ).trim()
-}
-
-def sqlExecute(query) {
-    sh """
-        docker exec -t -e MYSQL_PWD='admin' some-mysql \\
-        mysql -u root -D prestashop -e "${query}"
-    """
 }
