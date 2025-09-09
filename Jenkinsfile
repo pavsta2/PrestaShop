@@ -121,6 +121,9 @@ pipeline {
                     // Генерируем ключ (32 символа)
                     def psApiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim() // 32 hex = 16 байт
 
+                    // Сохраняем в переменную окружения (необязательно, но можно)
+                    env.PS_API_KEY = psApiKey
+
                     // PHP-скрипт для выполнения в контейнере PrestaShop
                     def phpScript = """
                     <?php
@@ -176,6 +179,13 @@ pipeline {
 
                     echo "Webservice активирован, API-ключ с полными правами создан."
                     echo "Открытый ключ: ${psApiKey}"
+
+                    currentBuild.rawBuild.addAction(
+                        new hudson.model.ParametersAction([
+                            new hudson.model.StringParameterValue('PS_API_KEY_RUNTIME', psApiKey)
+                        ])
+                    )
+                    env.PS_API_KEY_RUNTIME = psApiKey
                 }
             }
         }
@@ -184,7 +194,7 @@ pipeline {
             steps {
                 script {
                     echo 'Запуск тестового контейнера...'
-                    echo "PS_API_KEY = ${psApiKey}"
+                    echo "PS_API_KEY = ${env.PS_API_KEY_RUNTIME}"
                     echo "BROWSER = ${params.BROWSER}, BROWSER_VER = ${params.BROWSER_VER}, XDIST = ${params.XDIST}"
                     sh """
                         docker run --rm \\
@@ -194,7 +204,7 @@ pipeline {
                           -e XDIST='${params.XDIST}' \\
                           -e LOG_LEVEL='${params.LOG_LEVEL}' \\
                           -e PS_API_URL=http://prestashop:80/api \\
-                          -e PS_API_KEY=${psApiKey} \\
+                          -e PS_API_KEY=${env.PS_API_KEY_RUNTIME} \\
                           -e REMOTE_URL='${params.REMOTE_URL}' \\
                           -v "jenkins_results:/root/Presta/${ALLURE_RESULTS}" \\
                           -v ${WORKSPACE}/${ALLURE_RESULTS}:/app/${ALLURE_RESULTS} \\
