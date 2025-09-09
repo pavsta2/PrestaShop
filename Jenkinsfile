@@ -37,9 +37,6 @@ pipeline {
         // --- PrestaShop ---
         PS_ADMIN_DIR_FIXED = 'admin_8k3j29smxqkl'      // фиксированное имя для стабильности
 
-        // --- API ---
-        PS_API_KEY = ''
-
         // --- Тесты и Allure ---
         TEST_IMAGE = 'presta_tests:latest'         // замените на имя вашего образа
         ALLURE_RESULTS = 'allure-results'
@@ -123,8 +120,6 @@ pipeline {
 
                     // Генерируем ключ (32 символа)
                     def psApiKey = sh(script: 'openssl rand -hex 16', returnStdout: true).trim() // 32 hex = 16 байт
-                    // Сохраняем в переменную окружения для других этапов
-                    currentBuild.buildVariables.PS_API_KEY = psApiKey
 
                     // PHP-скрипт для выполнения в контейнере PrestaShop
                     def phpScript = """
