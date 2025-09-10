@@ -194,7 +194,6 @@ pipeline {
                     sh '''
                         docker cp enable_webservice.php prestashop:/tmp/enable_webservice.php
                         docker exec -t prestashop php /tmp/enable_webservice.php
-                        RESULT=$(docker exec -t prestashop grep "SUCCESS" /tmp/enable_webservice.php.log 2>/dev/null || echo "")
                         docker exec -t prestashop rm -f /tmp/enable_webservice.php
                         if [ -z "$RESULT" ]; then
                             echo "Выполнение PHP-скрипта не завершилось успешно"
