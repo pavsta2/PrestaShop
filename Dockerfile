@@ -11,7 +11,7 @@ RUN mkdir -p /root/Presta/Logs
 
 RUN pip install --no-cache uv && \
     uv venv && \
-    uv curl \
+    uv curl && \
     uv pip install -r requirements.txt
 
 COPY entrypoint.sh /entrypoint.sh
