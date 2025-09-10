@@ -22,7 +22,7 @@ def pytest_addoption(parser):
     parser.addoption('--remote_start', action='store_true', help='Remote start')
     parser.addoption('--browser_ver', help='Browser version')
     parser.addoption('--remote_url', default='http://selenoid4:4444/wd/hub', help='Remote selenoid server url')
-
+    parser.addoption("--api_url", default='prestashop:80/api', help='API url')
 
 # @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 # def pytest_runtest_makereport(item, call):
@@ -52,6 +52,12 @@ def get_api_key(request):
     auth_value = base64.b64encode(f'{request.config.getoption("--api_key")}:'.encode()).decode()
     api_key = f'Basic {auth_value}'
     return api_key
+
+
+@pytest.fixture
+def get_api_url(request):
+    """Фикстура получения api_url из pytest_addoption"""
+    return f"http://{request.config.getoption('--api_url')}"
 
 
 @pytest.fixture

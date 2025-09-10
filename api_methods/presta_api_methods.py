@@ -5,8 +5,8 @@ from .base_http_methods import BaseHTTPMeth
 class ApiRequest(BaseHTTPMeth):
     """Класс, описывающий методы Presta Api"""
     @allure.step("Выполнение запроса получения товара по id")
-    def get_product(self, api_key, prod_id):
-        url = f'http://prestashop:80/api/products/{prod_id}'
+    def get_product(self, api_key, prod_id, api_url):
+        url = f'{api_url}/products/{prod_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -17,8 +17,8 @@ class ApiRequest(BaseHTTPMeth):
         return self.get_meth(url, headers)
 
     @allure.step("Выполнение запроса списка всех товаров")
-    def get_products(self, api_key):
-        url = f'http://prestashop:80/api/products'
+    def get_products(self, api_key, api_url):
+        url = f'{api_url}/products'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -28,8 +28,8 @@ class ApiRequest(BaseHTTPMeth):
         return self.get_meth(url, headers)
 
     @allure.step("Получение максимального id товара")
-    def get_product_max_id(self, api_key):
-        url = f'http://prestashop:80/api/products'
+    def get_product_max_id(self, api_key, api_url):
+        url = f'{api_url}/products'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}',
@@ -39,8 +39,8 @@ class ApiRequest(BaseHTTPMeth):
         return self.get_meth(url, headers).json()['products'][-1]['id']
 
     @allure.step("Выполнение запроса создания производителя")
-    def create_manufacture(self, api_key, manufacture_name):
-        url = "http://localhost:8082/api/manufacturers"
+    def create_manufacture(self, api_key, manufacture_name, api_url):
+        url = f"{api_url}/manufacturers"
 
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
@@ -60,8 +60,8 @@ class ApiRequest(BaseHTTPMeth):
         return resp
 
     @allure.step("Выполнение запроса получения производителя по id")
-    def get_manufacture_by_id(self, api_key, manuf_id):
-        url = f'http://localhost:8082/api/manufacturers/{manuf_id}'
+    def get_manufacture_by_id(self, api_key, manuf_id, api_url):
+        url = f'{api_url}/manufacturers/{manuf_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}'
@@ -71,8 +71,8 @@ class ApiRequest(BaseHTTPMeth):
         return self.get_meth(url, headers)
 
     @allure.step("Выполнение запроса создания поставщика")
-    def create_supplier(self, api_key, supplier_name):
-        url = "http://localhost:8082/api/suppliers"
+    def create_supplier(self, api_key, supplier_name, api_url):
+        url = f"{api_url}/suppliers"
 
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
@@ -91,8 +91,8 @@ class ApiRequest(BaseHTTPMeth):
         return resp
 
     @allure.step("Выполнение запроса получения поставщика по id")
-    def get_supplier_by_id(self, api_key, suppl_id):
-        url = f'http://localhost:8082/api/suppliers/{suppl_id}'
+    def get_supplier_by_id(self, api_key, suppl_id, api_url):
+        url = f'{api_url}/suppliers/{suppl_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}'
@@ -102,8 +102,8 @@ class ApiRequest(BaseHTTPMeth):
         return self.get_meth(url, headers)
 
     @allure.step("Выполнение запроса создания категории")
-    def create_category(self, api_key, category_name):
-        url = "http://localhost:8082/api/categories"
+    def create_category(self, api_key, category_name, api_url):
+        url = f"{api_url}/categories"
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
                    "<category>\n"
@@ -131,8 +131,8 @@ class ApiRequest(BaseHTTPMeth):
         return resp
 
     @allure.step("Выполнение запроса получения категории по id")
-    def get_category_by_id(self, api_key, cat_id):
-        url = f'http://localhost:8082/api/suppliers/{cat_id}'
+    def get_category_by_id(self, api_key, cat_id, api_url):
+        url = f'{api_url}/suppliers/{cat_id}'
         headers = {
             'Output-Format': 'JSON',
             'Authorization': f'{api_key}'
@@ -149,6 +149,7 @@ class ApiRequest(BaseHTTPMeth):
             id_manufacturer: int,
             id_supplier: int,
             id_category: int,
+            api_url: str,
             id_brand=10,
             new=1,
             id_default_combination=1,
@@ -172,7 +173,7 @@ class ApiRequest(BaseHTTPMeth):
             description='some description'
             ):
 
-        url = "http://localhost:8082/api/products"
+        url = f"{api_url}/products"
         payload = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                    "<prestashop xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n"
                    "<product>\n\t"
@@ -233,8 +234,8 @@ class ApiRequest(BaseHTTPMeth):
         return resp
 
     @allure.step("Выполнение запроса получения товарного запаса")
-    def get_prod_stock(self, api_key, prod_id):
-        url = f"http://localhost:8082/api/stock_availables?filter[id_product]={prod_id}&display=full&output_format=JSON"
+    def get_prod_stock(self, api_key, prod_id, api_url):
+        url = f"{api_url}/stock_availables?filter[id_product]={prod_id}&display=full&output_format=JSON"
 
         headers = {
             'Output-Format': 'JSON',
@@ -245,6 +246,3 @@ class ApiRequest(BaseHTTPMeth):
         resp = self.get_meth(url, headers)
         return resp
 
-
-# print(update_product_stock('Basic MU5VVlFFS0VIM01NQU5IRlZaTDMxTUVaSEdJVEJKVDc6',21, 100).text)
-# print(get_prod_stock('Basic MU5VVlFFS0VIM01NQU5IRlZaTDMxTUVaSEdJVEJKVDc6',21).text)
