@@ -2,6 +2,7 @@
 import pytest
 import logging
 import datetime
+import base64
 import os
 from selenium import webdriver
 from selenium.webdriver.chromium.options import ChromiumOptions
@@ -48,7 +49,8 @@ def pytest_addoption(parser):
 @pytest.fixture
 def get_api_key(request):
     """Фикстура получения api_key из pytest_addoption"""
-    api_key = f'Basic {request.config.getoption("--api_key")}'
+    auth_value = base64.b64encode(f'{request.config.getoption("--api_key")}:'.encode()).decode()
+    api_key = f'Basic {auth_value}'
     return api_key
 
 
