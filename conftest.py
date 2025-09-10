@@ -25,36 +25,14 @@ def pytest_addoption(parser):
     parser.addoption('--remote_url', default='http://selenoid4:4444/wd/hub', help='Remote selenoid server url')
     parser.addoption("--api_url", default='http://prestashop:80/api', help='API url')
 
-# @pytest.hookimpl(tryfirst=True, hookwrapper=True)
-# def pytest_runtest_makereport(item, call):
-#     outcome = yield
-#     rep = outcome.get_result()
-#     if os.path.basename(item.fspath) == "test_presta_api.py":
-#         return
-#
-#     driver = item.funcargs["browser"]
-#
-#     if rep.outcome != 'passed':
-#         item.status = 'failed'
-#     else:
-#         item.status = 'passed'
-#
-#     if item.status == "failed":
-#         allure.attach(
-#             name="failure_screenshot",
-#             body=driver.get_screenshot_as_png(),
-#             attachment_type=allure.attachment_type.PNG
-#         )
-
-
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
-    # request = item.funcargs.get("request")
-    # driver = getattr(request.node, "driver", None)
+    if os.path.basename(item.fspath) == "test_presta_api.py":
+        return
 
-    driver = item.funcargs.get("driver", None)
+    driver = item.funcargs["browser"]
 
     if rep.outcome != 'passed':
         item.status = 'failed'
@@ -62,14 +40,36 @@ def pytest_runtest_makereport(item, call):
         item.status = 'passed'
 
     if item.status == "failed":
-        try:
-            allure.attach(
-                name="failure_screenshot",
-                body=driver.get_screenshot_as_png(),
-                attachment_type=allure.attachment_type.PNG
-            )
-        except:
-            pass
+        allure.attach(
+            name="failure_screenshot",
+            body=driver.get_screenshot_as_png(),
+            attachment_type=allure.attachment_type.PNG
+        )
+
+
+# @pytest.hookimpl(tryfirst=True, hookwrapper=True)
+# def pytest_runtest_makereport(item, call):
+#     outcome = yield
+#     rep = outcome.get_result()
+#     # request = item.funcargs.get("request")
+#     # driver = getattr(request.node, "driver", None)
+#
+#     driver = item.funcargs.get("driver", None)
+#
+#     if rep.outcome != 'passed':
+#         item.status = 'failed'
+#     else:
+#         item.status = 'passed'
+#
+#     if item.status == "failed":
+#         try:
+#             allure.attach(
+#                 name="failure_screenshot",
+#                 body=driver.get_screenshot_as_png(),
+#                 attachment_type=allure.attachment_type.PNG
+#             )
+#         except:
+#             pass
 
 
 @pytest.fixture
