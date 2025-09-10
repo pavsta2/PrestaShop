@@ -57,7 +57,7 @@ def get_api_key(request):
 @pytest.fixture
 def get_api_url(request):
     """Фикстура получения api_url из pytest_addoption"""
-    return f"http://{request.config.getoption('--api_url')}"
+    return f"{request.config.getoption('--api_url')}"
 
 
 @pytest.fixture
