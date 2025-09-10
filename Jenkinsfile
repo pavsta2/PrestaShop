@@ -129,6 +129,9 @@ pipeline {
                     <?php
                     require_once '/var/www/html/config/config.inc.php';
 
+                    // Удаляем старый ключ, чтобы избежать дублирования
+                    WebserviceKey::deleteByName('Jenkins API Key');
+
                     // 1. Включаем Webservice
                     Configuration::updateValue('PS_WEBSERVICE', 1);
                     echo "Webservice включён\\n";
@@ -136,13 +139,19 @@ pipeline {
                     // 2. Создаём новый ключ
                     \$apiAccess = new WebserviceKey();
                     \$apiAccess->key = '${psApiKey}';
-                    if (!\$apiAccess->save()) {
-                        echo "Ошибка при сохранении API-ключа\\n";
+                    \$apiAccess->description = 'Jenkins API Key';
+                    \$apiAccess->save();
+
+                    // Проверяем, что ключ создан
+                    if (!\$apiAccess->id) {
+                        echo "Ошибка: ключ не был сохранён. Возможно, такой ключ уже существует.\n";
                         exit(1);
                     }
-                    echo "API-ключ создан: ${psApiKey}\\n";
+                    echo "API-ключ создан с ID: {\$apiAccess->id}\n";
 
                     // 3. Назначаем полные права на все ресурсы
+                    // Получаем список всех ресурсов API
+
                     \$resources = WebserviceRequest::getResources();
                     \$permissions = [];
                     foreach (\$resources as \$resourceName => \$resource) {
@@ -155,6 +164,7 @@ pipeline {
                             'HEAD' => 1
                         ];
                     }
+                    // Выдаём права
 
                     WebserviceKey::setPermissionForAccount(\$apiAccess->id, \$permissions);
                     echo "Полные права выданы для ключа ID: {\$apiAccess->id}\\n";
