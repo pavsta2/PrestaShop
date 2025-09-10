@@ -137,11 +137,29 @@ pipeline {
                     \$apiAccess = new WebserviceKey();
                     \$apiAccess->key = '${psApiKey}';
                     \$apiAccess->description = 'Jenkins API Key';
-                    \$apiAccess->save();
 
-                    // Проверяем, что ключ создан
+                    // Проверяем, что ключ проходит базовую валидацию
+                    if (empty(\$apiAccess->key)) {
+                        echo "❌ Ошибка: пустой ключ\\n";
+                        exit(1);
+                    }
+
+                    // Пытаемся сохранить
+                    if (!\$apiAccess->validateFields(false)) {
+                        echo "❌ Ошибка валидации полей ключа\\n";
+                        print_r(\$apiAccess->validateFields(false));
+                        exit(1);
+                    }
+
+                    if (!\$apiAccess->save()) {
+                        echo "❌ Ошибка: ключ не был сохранён. Ошибки: \\n";
+                        print_r(\$apiAccess->getErrors());
+                        exit(1);
+                    }
+
+                    // Проверяем, что ID появился
                     if (!\$apiAccess->id) {
-                        echo "Ошибка: ключ не был сохранён. Возможно, такой ключ уже существует.\n";
+                        echo "❌ Ошибка: ключ сохранён, но ID не присвоен\\n";
                         exit(1);
                     }
                     echo "API-ключ создан с ID: {\$apiAccess->id}\n";
