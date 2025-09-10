@@ -27,7 +27,7 @@ def pytest_addoption(parser):
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item):
+def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
     if os.path.basename(item.fspath) == "test_presta_api.py":
