@@ -22,7 +22,7 @@ def pytest_addoption(parser):
     parser.addoption('--remote_start', action='store_true', help='Remote start')
     parser.addoption('--browser_ver', help='Browser version')
     parser.addoption('--remote_url', default='http://selenoid4:4444/wd/hub', help='Remote selenoid server url')
-    parser.addoption("--api_url", default='prestashop:80/api', help='API url')
+    parser.addoption("--api_url", default='http://prestashop:80/api', help='API url')
 
 # @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 # def pytest_runtest_makereport(item, call):

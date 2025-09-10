@@ -6,7 +6,7 @@ set +e
 ALLURE_RESULTS="${ALLURE_RESULTS:-/root/Presta/allure-results}"
 mkdir -p $ALLURE_RESULTS
 
-echo "=== Пишем результаты в: $ALLURE_RESULTS ==="
+echo "=== Запускается Pytest ==="
 
 pytest --browser="$BROWSER" \
       --log_level="$LOG_LEVEL" \
