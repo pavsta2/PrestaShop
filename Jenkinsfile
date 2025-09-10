@@ -129,9 +129,6 @@ pipeline {
                     <?php
                     require_once '/var/www/html/config/config.inc.php';
 
-                    // Удаляем старый ключ, чтобы избежать дублирования
-                    WebserviceKey::deleteByName('Jenkins API Key');
-
                     // 1. Включаем Webservice
                     Configuration::updateValue('PS_WEBSERVICE', 1);
                     echo "Webservice включён\\n";
