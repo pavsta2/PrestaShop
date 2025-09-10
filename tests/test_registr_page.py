@@ -4,7 +4,6 @@ import pytest
 from pages.registr_page import RegistrPage
 from pages.header_element import HeaderElement
 from pages.base_page import BasePage
-from selenium.common.exceptions import TimeoutException
 
 
 @allure.feature("Проверки страницы регистрации")

@@ -3,7 +3,6 @@ import allure
 from pages.main_page import MainPage
 from pages.cart_page import CartPage
 from pages.header_element import HeaderElement
-from selenium.common.exceptions import TimeoutException
 
 
 @allure.feature("Проверки главной страницы")
