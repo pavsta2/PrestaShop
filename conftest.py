@@ -3,6 +3,7 @@ import pytest
 import logging
 import datetime
 import base64
+import allure
 import os
 from selenium import webdriver
 from selenium.webdriver.chromium.options import ChromiumOptions
@@ -44,6 +45,31 @@ def pytest_addoption(parser):
 #             body=driver.get_screenshot_as_png(),
 #             attachment_type=allure.attachment_type.PNG
 #         )
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    # request = item.funcargs.get("request")
+    # driver = getattr(request.node, "driver", None)
+
+    driver = item.funcargs.get("driver", None)
+
+    if rep.outcome != 'passed':
+        item.status = 'failed'
+    else:
+        item.status = 'passed'
+
+    if item.status == "failed":
+        try:
+            allure.attach(
+                name="failure_screenshot",
+                body=driver.get_screenshot_as_png(),
+                attachment_type=allure.attachment_type.PNG
+            )
+        except:
+            pass
 
 
 @pytest.fixture
