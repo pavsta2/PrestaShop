@@ -1,0 +1,52 @@
+services:
+
+  selenoid4:
+    image: aerokube/selenoid:1.11.3
+    hostname: selenoid4
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/pavel/selenoid/browsers.json:/etc/selenoid/browsers.json:ro
+    command: -container-network=selenoid4 -limit 10
+
+  selenoid_ui:
+    image: aerokube/selenoid-ui:1.10.11
+    hostname: selenoid_ui
+    depends_on: [ selenoid4 ]
+    ports:
+      - 8090:8080
+    command: --selenoid-uri http://selenoid4:4444
+
+  mysql:
+    container_name: some-mysql
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: prestashop
+
+  prestashop:
+    container_name: prestashop
+    image: prestashop/prestashop:latest
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - 8082:80
+    environment:
+      DB_SERVER: some-mysql
+      DB_NAME: prestashop
+      DB_USER: root
+      DB_PASSWD: admin
+      PS_INSTALL_AUTO: 1
+      PS_DOMAIN: prestashop
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  default:
+    external: true
+    name: selenoid4
